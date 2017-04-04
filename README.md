@@ -28,7 +28,7 @@ We look forward to seeing your contributions!
 
 ## License
 
-MIT © [Ben Lugavere]()
+MIT © [Ben Lugavere](http://benlugavere.com/)
 
 [npm-image]: https://badge.fury.io/js/mongoose-to-swagger.svg
 [npm-url]: https://npmjs.org/package/mongoose-to-swagger
