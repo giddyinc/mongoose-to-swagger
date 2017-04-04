@@ -13,12 +13,16 @@ $ npm install --save mongoose-to-swagger
 
 ## Overview
 
-TBD
+Converts a mongoose model into a swagger schema.
 
 ## Usage
 
 ```js
-
+const mongoose = require('mongoose');
+const m2s = require('mongoose-to-swagger');
+const Cat = mongoose.model('Cat', { name: String });
+const swaggerSchema = m2s(Cat);
+console.log(swaggerSchema);
 ```
 
 ## Contributing

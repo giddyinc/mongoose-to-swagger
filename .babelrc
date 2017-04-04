@@ -9,6 +9,7 @@
     "transform-class-properties",
     "transform-decorators-legacy",
     "transform-object-assign",
-    "array-includes"
+    "array-includes",
+    "transform-runtime"
   ]
 }
