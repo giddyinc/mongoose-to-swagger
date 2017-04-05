@@ -10,13 +10,8 @@ const istanbul = require('gulp-istanbul');
 const nsp = require('gulp-nsp');
 const plumber = require('gulp-plumber');
 const coveralls = require('gulp-coveralls');
-const babel = require('gulp-babel');
 const del = require('del');
 const isparta = require('isparta');
-
-// Initialize the babel transpiler so ES2015 files gets compiled
-// when they're loaded
-require('babel-register')();
 
 gulp.task('static', function () {
   return gulp.src('**/*.js')
@@ -60,15 +55,9 @@ gulp.task('coveralls', ['test'], function () {
     .pipe(coveralls());
 });
 
-gulp.task('babel', ['clean'], function () {
-  return gulp.src('lib/**/*.js')
-    .pipe(babel())
-    .pipe(gulp.dest('dist'));
-});
-
 gulp.task('clean', function () {
   return del('dist');
 });
 
-gulp.task('prepublish', ['nsp', 'babel']);
+gulp.task('prepublish', ['nsp']);
 gulp.task('default', ['static', 'test', 'coveralls']);
