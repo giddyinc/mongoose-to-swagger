@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const m2s = require('../lib');
 
 /**
- * mocha --require babel-register test --watch
+ * mocha test --watch
  */
 
 describe('mongoose-to-swagger', function () {
