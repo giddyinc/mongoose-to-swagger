@@ -8,10 +8,7 @@
     "email": "b.lugavere@gmail.com",
     "url": "http://benlugavere.com"
   },
-  "files": [
-    "dist"
-  ],
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "keywords": [
     "swagger",
     "openapi",
