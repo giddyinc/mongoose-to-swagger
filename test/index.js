@@ -15,7 +15,6 @@ describe('mongoose-to-swagger', function () {
     it('should do something', () => {
       const Cat = mongoose.model('Cat', {name: String});
       const swaggerSchema = m2s(Cat);
-      expect(swaggerSchema.id).toBe('Cat');
       expect(swaggerSchema.properties).toExist();
     });
   });
@@ -35,7 +34,6 @@ describe('mongoose-to-swagger', function () {
         }
       });
       const swaggerSchema = m2s(Dog);
-      expect(swaggerSchema.id).toBe('Dog');
       expect(swaggerSchema.required).toEqual(['name', 'likesWater']);
     });
   });
