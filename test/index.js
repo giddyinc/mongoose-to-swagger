@@ -19,4 +19,24 @@ describe('mongoose-to-swagger', function () {
       expect(swaggerSchema.properties).toExist();
     });
   });
+  describe('when there are required schema props', () => {
+    it('should pull those to the top level array of the swagger definition', () => {
+      const Dog = mongoose.model('Dog', {
+        name: {
+          type: String,
+          required: true
+        },
+        likesWater: {
+          type: Boolean,
+          required: true
+        },
+        isGoodBoy: {
+          type: Boolean
+        }
+      });
+      const swaggerSchema = m2s(Dog);
+      expect(swaggerSchema.id).toBe('Dog');
+      expect(swaggerSchema.required).toEqual(['name', 'likesWater']);
+    });
+  });
 });
