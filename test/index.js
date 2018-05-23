@@ -36,5 +36,23 @@ describe('mongoose-to-swagger', function () {
       const swaggerSchema = m2s(Dog);
       expect(swaggerSchema.required).toEqual(['name', 'likesWater']);
     });
+    it('should allow enums', () => {
+      const Dog = mongoose.model('AbstractDog', {
+        name: {
+          type: String,
+          required: true
+        },
+        type: {
+          type: String,
+          enum: [1, 2],
+          description: 'Hotdog or Not Hotdog?',
+          required: true
+        }
+      });
+      const swaggerSchema = m2s(Dog);
+      expect(swaggerSchema.required).toEqual(['name', 'type']);
+      expect(swaggerSchema.properties.type.enum).toEqual(['1', '2']);
+      expect(swaggerSchema.properties.type.description).toBeAn('string');
+    });
   });
 });
