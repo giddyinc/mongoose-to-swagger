@@ -55,17 +55,9 @@ gulp.task('coveralls', ['test'], function () {
     .pipe(coveralls());
 });
 
-gulp.task('babel', ['clean'], function () {
-  return gulp.src([
-    'lib/**/*.js',
-    '!lib/**/*.test.js'
-  ])
-    .pipe(gulp.dest('dist'));
-});
-
 gulp.task('clean', function () {
   return del('dist');
 });
 
-gulp.task('prepublish', ['nsp', 'babel']);
+gulp.task('prepublish', ['nsp']);
 gulp.task('default', ['static', 'test', 'coveralls']);
