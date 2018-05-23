@@ -1,4 +1,6 @@
-# mongoose-to-swagger [![NPM version][npm-image]][npm-url] [![Build Status](https://travis-ci.org/giddyinc/mongoose-to-swagger.svg?branch=master)](https://travis-ci.org/giddyinc/mongoose-to-swagger) [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage Status](https://coveralls.io/repos/github/giddyinc/mongoose-to-swagger/badge.svg?branch=master)](https://coveralls.io/github/giddyinc/mongoose-to-swagger?branch=master)
+[![NPM version][npm-image]][npm-url] [![Build Status](https://travis-ci.org/giddyinc/mongoose-to-swagger.svg?branch=master)](https://travis-ci.org/giddyinc/mongoose-to-swagger) [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage Status](https://coveralls.io/repos/github/giddyinc/mongoose-to-swagger/badge.svg?branch=master)](https://coveralls.io/github/giddyinc/mongoose-to-swagger?branch=master)
+
+# mongoose-to-swagger 
 
 Conversion library for transforming [Mongoose](http://mongoosejs.com/) schema objects into [Swagger](http://swagger.io) schema definitions.
 
