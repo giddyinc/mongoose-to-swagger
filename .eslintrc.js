@@ -11,6 +11,7 @@ module.exports = {
   },
   "rules": {
     "guard-for-in": [0],
-    "no-multiple-empty-lines": 1
+    "no-multiple-empty-lines": 1,
+    "capitalized-comments": 0
   }
 }
