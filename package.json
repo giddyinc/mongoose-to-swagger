@@ -18,28 +18,20 @@
     "mongoose"
   ],
   "devDependencies": {
-    "clarify": "^2.0.0",
-    "del": "^2.0.2",
     "eslint": "^3.1.1",
     "eslint-config-xo-space": "^0.15.0",
     "expect": "^1.20.2",
-    "gulp": "^3.9.1",
-    "gulp-coveralls": "^0.1.0",
-    "gulp-eslint": "^3.0.1",
-    "gulp-exclude-gitignore": "^1.0.0",
-    "gulp-istanbul": "^1.0.0",
-    "gulp-line-ending-corrector": "^1.0.1",
-    "gulp-mocha": "^3.0.1",
-    "gulp-nsp": "^3.0.1",
-    "gulp-plumber": "^1.0.0",
-    "isparta": "^4.0.0",
-    "mongoose": "^4.9.3"
+    "mongoose": "^4.9.3",
+    "nsp": "^3.2.1",
+    "nyc": "^11.8.0"
   },
   "repository": "giddyinc/mongoose-to-swagger",
   "scripts": {
-    "prepublish": "gulp prepublish",
-    "test": "gulp",
-    "test:watch": "gulp watch"
+    "prepublish": "nsp check .",
+    "test": "nyc mocha lib/*.test.js",
+    "test:watch": "mocha lib/*.test.js --watch",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "license": "MIT"
 }
