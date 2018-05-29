@@ -27,6 +27,7 @@
   },
   "repository": "giddyinc/mongoose-to-swagger",
   "scripts": {
+    "clean": "rm -rf .nyc_output dist",
     "prepublish": "nsp check .",
     "test": "nyc mocha lib/*.test.js",
     "test:watch": "mocha lib/*.test.js --watch",
