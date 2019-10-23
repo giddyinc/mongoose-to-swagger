@@ -23,7 +23,7 @@
     "eslint-config-xo-space": "^0.18.0",
     "expect": "^23.0.1",
     "mocha": "^5.2.0",
-    "mongoose": "^4.13.14",
+    "mongoose": "^5.7.5",
     "nsp": "^3.2.1",
     "nyc": "^11.8.0"
   },
