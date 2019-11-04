@@ -7,16 +7,17 @@
         "lib": ["es2017"],
         "module": "commonjs",
         "moduleResolution": "node",
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "outDir": "dist",
         "pretty": true,
         "removeComments": true,
         "sourceMap": true,
         "alwaysStrict": true,
-        "target": "es2017"
+        "target": "es2017",
+        "noUnusedParameters": false
     },
     "include": [
-        "src"
+        "lib"
     ],
     "exclude": [
         "src/**/*.test.ts",

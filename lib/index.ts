@@ -1,20 +1,20 @@
-/* eslint-disable eqeqeq */
-/* eslint-disable no-eq-null */
+
+import { isString } from 'util';
 
 const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | 'array' | 'object' => {
   if (!type) {
     return null;
   }
 
-  if (type === Number || type === 'Number') {
+  if (type === Number || (isString(type) && type.toLowerCase() === 'number')) {
     return 'number';
   }
 
-  if (type === String || type === 'String') {
+  if (type === String || (isString(type) && type.toLowerCase() === 'string')) {
     return 'string';
   }
 
-  if (type === Boolean || type === 'Boolean') {
+  if (type === Boolean || (isString(type) && type.toLowerCase() === 'boolean')) {
     return 'boolean';
   }
 
@@ -42,94 +42,154 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
   return 'object';
 };
 
+const supportedMetaProps = [
+  'enum',
+  'required',
+  'description'
+];
+
+const mapSchemaTypeToFieldSchema = ({
+  key,
+  value
+}: {
+  value: any;
+  key?: string;
+}) => {
+  const swaggerType = mapMongooseTypeToSwaggerType(value);
+  const meta: any = {};
+
+  for (const metaProp of supportedMetaProps) {
+    if (value[metaProp] != null) {
+      meta[metaProp] = value[metaProp];
+    }
+  }
+
+  if (value === Date || value.type === Date) {
+    meta.format = 'date-time';
+  } else if (swaggerType === 'array') {
+    const arraySchema = Array.isArray(value) ? value[0] : value.type[0];
+    const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {} });
+    meta.items = items;
+  } else if (swaggerType === 'object') {
+    let fields: Array<Field>;
+    if (value && value.constructor && value.constructor.name === 'Schema') {
+      fields = getFieldsFromMongooseSchema(value);
+    } else {
+      const subSchema = value.type ? value.type : value;
+      fields = getFieldsFromMongooseSchema({ tree: subSchema });
+    }
+
+    const properties = {};
+
+    for (const field of fields) {
+      properties[field.field] = field;
+      delete field.field;
+    }
+
+    meta.properties = properties;
+  }
+
+  const result = {
+    type: swaggerType,
+    ...meta,
+  };
+
+  if (key) {
+    result.field = key;
+  }
+
+  return result;
+};
+
+const getFieldsFromMongooseSchema = (schema: any): any => {
+  const fields: Field[] = [];
+  const tree = schema.tree;
+  const keys = Object.keys(schema.tree);
+
+  for (const key of keys) {
+    if (key === 'id') {
+      continue;
+    }
+
+    const value = tree[key];
+
+    const field: Field = mapSchemaTypeToFieldSchema({ key, value });
+    const required = [];
+
+    if (field.type === 'object') {
+      for (const f of Object.values(field.properties) as any[]) {
+        if (f.required) {
+          required.push(f.field);
+        }
+      }
+    }
+
+    if (field.type === 'array' && field.items.type === 'object') {
+      field.items.required = [];
+      for (const f of Object.values(field.items.properties) as any[]) {
+        if (f.required) {
+          field.items.required.push(f.field);
+        }
+      }
+    }
+
+    fields.push(field);
+  }
+
+  return fields;
+};
+
 function documentModel(Model): any {
+  const schema = Model.schema;
+  const fields = getFieldsFromMongooseSchema(schema);
+
   const obj = {
     title: Model.modelName,
     required: [],
     properties: {}
   };
 
-  /* const keys = Object.keys(Model.schema.tree);
-  console.log(keys); */
-
-  const pathsToSchema = (parent, paths) => {
-    // delete paths._id;
-    delete paths.__v;
-    Object.keys(paths)
-      .map(x => paths[x])
-      .forEach(mongooseProp => {
-        parent[mongooseProp.path] = {};
-        // const type = mapMongooseTypeToSwaggerType(mongooseProp);
-        // console.log(type);
-        const modelProp = parent[mongooseProp.path];
-
-        if (mongooseProp.instance === 'Array') {
-          // console.log(mongooseProp.schema);
-          modelProp.type = 'array';
-          modelProp.items = {
-            properties: {}
-          };
-
-          if (mongooseProp.schema) {
-            pathsToSchema(
-              modelProp.items.properties,
-              mongooseProp.schema.paths
-            );
-          } else if (
-            mongooseProp.options &&
-            mongooseProp.options.type != null &&
-            (Array.isArray(mongooseProp.options.type) ||
-              mongooseProp.options.type === 'array')
-          ) {
-            modelProp.items = {
-              type: mapMongooseTypeToSwaggerType(mongooseProp.options.type[0])
-            };
-            modelProp.items.enum = mongooseProp.caster.enumValues;
-          } else {
-            modelProp.items = {
-              type: 'object'
-            };
-          }
-        } else if (mongooseProp.instance === 'Embedded') {
-          modelProp.properties = {};
-          modelProp.type = 'object';
-          pathsToSchema(modelProp.properties, mongooseProp.schema.paths);
-        } else if (mongooseProp.instance === 'ObjectID') {
-          modelProp.type = 'string';
-          modelProp.required = mongooseProp.isRequired || false;
-        } else if (mongooseProp.instance === 'Date') {
-          modelProp.type = 'string';
-          modelProp.format = 'date-time';
-          modelProp.required = mongooseProp.isRequired || false;
-        } else {
-          modelProp.type = mapMongooseTypeToSwaggerType(mongooseProp.instance);
-          modelProp.required = mongooseProp.isRequired || false;
-        }
-
-        // custom mongoose options
-        if (mongooseProp.options) {
-          if (mongooseProp.options.description) {
-            modelProp.description = mongooseProp.options.description;
-          }
-        }
-
-        if (mongooseProp.enumValues && mongooseProp.enumValues.length) {
-          modelProp.enum = mongooseProp.enumValues;
-        }
-
-        if (modelProp.required) {
-          obj.required.push(mongooseProp.path);
-        }
-
-        delete modelProp.required;
-      });
-  };
-
-  pathsToSchema(obj.properties, Model.schema.paths);
+  for (const field of fields) {
+    obj.properties[field.field] = field;
+    if (field.required) {
+      obj.required.push(field.field);
+      delete field.field;
+    }
+  }
 
   return obj;
 }
 
 documentModel.adjustType = mapMongooseTypeToSwaggerType;
+documentModel.getFieldsFromMongooseSchema = getFieldsFromMongooseSchema;
 
 export = documentModel;
+
+type Field = NumberField | StringField | ObjectField | ArrayField;
+
+type StringField = {
+  type: 'string',
+  format?: string;
+  field?: string;
+  required?: boolean;
+}
+type NumberField = {
+  type: 'float',
+  format?: string;
+  field?: string;
+  required?: boolean;
+}
+type ObjectField = {
+  type: 'object',
+  format?: string;
+  field?: string;
+  required: string[];
+  properties: any;
+}
+type ArrayField = {
+  type: 'array',
+  format?: string;
+  field?: string;
+  required: string[];
+  items: Field;
+}
