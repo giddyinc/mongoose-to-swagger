@@ -8,7 +8,7 @@
     "email": "b.lugavere@gmail.com",
     "url": "http://benlugavere.com"
   },
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "keywords": [
     "swagger",
     "openapi",
@@ -42,7 +42,8 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint ./lib --ext .ts",
     "test:watch": "mocha lib/*.test.js --watch",
-    "test": "mocha lib/*.test.ts"
+    "test": "mocha lib/*.test.ts",
+    "build": "tsc"
   },
   "dependencies": {},
   "license": "MIT"

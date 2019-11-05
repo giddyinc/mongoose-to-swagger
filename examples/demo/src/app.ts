@@ -4,7 +4,6 @@ import fs from 'fs';
 import express from 'express';
 import mongoose, { Model, Document, Mongoose, Schema } from 'mongoose';
 import m2s from '../../../lib';
-import swagger from './swagger.json';
 
 const app = express();
 
@@ -35,7 +34,7 @@ const schema = new Schema({
 
 const Cat = mongoose.model('Cat', schema);
 
-const swagger2 = {
+const swagger = {
   definitions: {
     Cat: m2s(Cat),
   },
@@ -74,6 +73,7 @@ const swagger2 = {
 };
 
 // fs.writeFileSync(path.join(__dirname, './swagger.json'), JSON.stringify(swagger, null, 2));
+console.log(JSON.stringify(swagger.definitions.Cat, null, 2));
 
 app.get('/cats', (req, res) => res.send([]));
 

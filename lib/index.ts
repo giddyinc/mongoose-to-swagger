@@ -55,6 +55,7 @@ const mapSchemaTypeToFieldSchema = ({
   value: any;
   key?: string;
 }) => {
+  // console.log(key);
   const swaggerType = mapMongooseTypeToSwaggerType(value);
   const meta: any = {};
 
@@ -71,7 +72,7 @@ const mapSchemaTypeToFieldSchema = ({
     const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {} });
     meta.items = items;
   } else if (swaggerType === 'object') {
-    let fields: Array<Field>;
+    let fields: Array<Field> = [];
     if (value && value.constructor && value.constructor.name === 'Schema') {
       fields = getFieldsFromMongooseSchema(value);
     } else {
@@ -120,15 +121,18 @@ const getFieldsFromMongooseSchema = (schema: any): any => {
       for (const f of Object.values(field.properties) as any[]) {
         if (f.required) {
           required.push(f.field);
+          delete f.required;
         }
       }
     }
 
     if (field.type === 'array' && field.items.type === 'object') {
       field.items.required = [];
-      for (const f of Object.values(field.items.properties) as any[]) {
-        if (f.required) {
-          field.items.required.push(f.field);
+      for (const key in field.items.properties) {
+        const val = field.items.properties[key];
+        if (val.required) {
+          field.items.required.push(key);
+          delete val.required;
         }
       }
     }
@@ -140,6 +144,7 @@ const getFieldsFromMongooseSchema = (schema: any): any => {
 };
 
 function documentModel(Model): any {
+  // console.log('swaggering', Model.modelName);
   const schema = Model.schema;
   const fields = getFieldsFromMongooseSchema(schema);
 
@@ -150,10 +155,14 @@ function documentModel(Model): any {
   };
 
   for (const field of fields) {
+    if (field.field === '__v') {
+      continue;
+    }
     obj.properties[field.field] = field;
     if (field.required) {
       obj.required.push(field.field);
       delete field.field;
+      delete field.required;
     }
   }
 
@@ -165,11 +174,17 @@ documentModel.getFieldsFromMongooseSchema = getFieldsFromMongooseSchema;
 
 export = documentModel;
 
-type Field = NumberField | StringField | ObjectField | ArrayField;
+type Field = DateField | NumberField | StringField | ObjectField | ArrayField;
 
 type StringField = {
   type: 'string',
   format?: string;
+  field?: string;
+  required?: boolean;
+}
+type DateField = {
+  type: 'string',
+  format: string;
   field?: string;
   required?: boolean;
 }

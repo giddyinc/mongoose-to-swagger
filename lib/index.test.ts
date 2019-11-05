@@ -249,4 +249,109 @@ describe(path.basename(__filename).replace('.test.ts', ''), () => {
       expect(result.required).to.deep.equal(['hidden']);
     });
   });
+
+  describe('required', () => {
+    it('root', () => {
+      const result = documentModel({
+        schema: new Schema({
+          foo: {
+            type: String,
+            enum: ['bar', 'baz'],
+            required: true,
+          }
+        })
+      });
+      // console.log(result);
+      expect(result.required).to.not.be.empty;
+    });
+    it('nested', () => {
+      const Paw = new Schema({
+        numToes: {
+          type: Number,
+          required: true,
+        }
+      });
+
+      const schema = new Schema({
+        name: {
+          type: String,
+          required: true,
+        },
+        color: {
+          type: String,
+          required: true,
+        },
+        hasTail: {
+          type: Boolean,
+        },
+        paws: {
+          type: [Paw],
+          required: true,
+        }
+      });
+      const result = documentModel({ schema });
+      // console.log(JSON.stringify(result, null, 2));
+      // console.log(JSON.stringify(result.properties.paws, null, 2));
+      expect(result.required).to.not.be.empty;
+      expect(result.required).to.not.contain(null);
+      expect(result.properties.paws.items.required).to.not.be.empty;
+      expect(result.properties.paws.items.required).to.not.contain(null);
+      const [f] = result.properties.paws.items.required;
+      expect(f).to.exist;
+    });
+    it('nested - alt format', () => {
+      const Paw = new Schema({
+        numToes: {
+          type: Number,
+          required: true,
+        }
+      });
+
+      const schema = new Schema({
+        name: {
+          type: String,
+          required: true,
+        },
+        color: {
+          type: String,
+          required: true,
+        },
+        hasTail: {
+          type: Boolean,
+        },
+        paws: [Paw]
+      });
+      const result = documentModel({ schema });
+      // console.log(JSON.stringify(result, null, 2));
+      // console.log(JSON.stringify(result.properties.paws, null, 2));
+      expect(result.required).to.not.be.empty;
+      expect(result.required).to.not.contain(null);
+      expect(result.properties.paws.items.required).to.not.be.empty;
+      expect(result.properties.paws.items.required).to.not.contain(null);
+      const [f] = result.properties.paws.items.required;
+      expect(f).to.exist;
+    });
+
+    it('k', () => {
+      const schema = new mongoose.Schema({
+        a: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
+        b: { type: Number, default: 0 },
+        c: String,
+        d: { type: mongoose.Schema.Types.ObjectId },
+        e: String,
+        f: Object,
+        g: { type: mongoose.Schema.Types.Mixed },
+        h: Boolean,
+        i: [Object],
+        j: {
+          type: Object,
+        },
+        k: {
+          type: [Object],
+        },
+      });
+      const result = documentModel({ modelName: 'Cat', schema });
+    });
+
+  });
 });
