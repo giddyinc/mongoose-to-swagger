@@ -1,0 +1,24 @@
+{
+  "name": "typescript-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node src/app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "doctopus": "1.1.1",
+    "express": "4.16.4"
+  },
+  "devDependencies": {
+    "@types/express": "4.16.0",
+    "@types/node": "10.12.7",
+    "mongoose": "5.7.7",
+    "ts-node": "7.0.1",
+    "typescript": "3.1.6"
+  }
+}
