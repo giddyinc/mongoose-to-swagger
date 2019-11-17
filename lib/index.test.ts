@@ -1,6 +1,5 @@
 
 import { expect } from 'chai';
-import path from 'path';
 import documentModel = require('.');
 import mongoose, { Schema } from 'mongoose';
 
@@ -10,7 +9,7 @@ const { getFieldsFromMongooseSchema } = documentModel;
 * npx mocha lib/index.test.ts --watch
 */
 
-describe(path.basename(__filename).replace('.test.ts', ''), () => {
+describe('index.test.ts', () => {
   describe('adjustType', () => {
     it('should work for string', () => {
       const result = documentModel.adjustType('String');
@@ -53,6 +52,40 @@ describe(path.basename(__filename).replace('.test.ts', ''), () => {
         })
       });
     });
+
+    it('virtual handling', () => {
+      const schema = new Schema({});
+      schema.virtual('f', () => 'b');
+      const result = documentModel({schema});
+      const virtualField = result.properties.f;
+      expect(virtualField).to.not.exist;
+    });
+
+    it('sub schema array handling', () => {
+      const Thing = new Schema({
+        cost: {
+          type: Number,
+          required: true,
+        },
+      });
+      const schema = new Schema({
+        f: {
+          things: {
+            type: [Thing],
+            required: true,
+          }
+        }
+      });
+      const result = documentModel({schema});
+      // console.log(JSON.stringify(result, null, 2));
+      const field = result.properties.f;
+      expect(field).to.exist;
+      expect(field.type).to.equal('object');
+      expect(field.properties.things).to.exist;
+      expect(field.properties.things.type).to.equal('array');
+      expect(field.properties.things.items.required).to.include('cost');
+    });
+
     it('+', () => {
       const schema = new Schema({
         name: String,
@@ -68,6 +101,7 @@ describe(path.basename(__filename).replace('.test.ts', ''), () => {
         names: {
           asd: String,
           fgh: [String],
+          fgz: [Number],
           jkl: [{
             foo: String
           }],
@@ -93,7 +127,9 @@ describe(path.basename(__filename).replace('.test.ts', ''), () => {
           }
         })]
       });
-      const results: any[] = getFieldsFromMongooseSchema(schema);
+      schema.virtual('f', () => 'b');
+      const results: any[] = getFieldsFromMongooseSchema(schema as any);
+
       const nameField = results.find(x => x.field === 'name');
       expect(nameField.type, 'nameField.type').to.exist;
       expect(nameField.type).to.equal('string');
@@ -251,6 +287,7 @@ describe(path.basename(__filename).replace('.test.ts', ''), () => {
   });
 
   describe('required', () => {
+
     it('root', () => {
       const result = documentModel({
         schema: new Schema({
@@ -264,6 +301,7 @@ describe(path.basename(__filename).replace('.test.ts', ''), () => {
       // console.log(result);
       expect(result.required).to.not.be.empty;
     });
+
     it('nested', () => {
       const Paw = new Schema({
         numToes: {
@@ -299,6 +337,7 @@ describe(path.basename(__filename).replace('.test.ts', ''), () => {
       const [f] = result.properties.paws.items.required;
       expect(f).to.exist;
     });
+
     it('nested - alt format', () => {
       const Paw = new Schema({
         numToes: {

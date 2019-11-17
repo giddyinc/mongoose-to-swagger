@@ -28,5 +28,6 @@ module.exports = {
     'complexity': 0,
     'padded-blocks': 0,
     'padding-line-between-statements': 0,
+    'valid-jsdoc': 0,
   }
 }
