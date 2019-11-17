@@ -2,7 +2,7 @@
 import { isString } from 'util';
 import { ObjectId } from 'bson';
 
-const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | 'array' | 'object' => {
+const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | 'array' | 'object' | null => {
   if (!type) {
     return null;
   }
@@ -41,7 +41,6 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
   }
 
   if (type.instance) {
-    console.log('type instance', type.instance);
     switch (type.instance) {
       case 'Array':
       case 'DocumentArray':
@@ -96,7 +95,7 @@ const mapSchemaTypeToFieldSchema = ({
   value
 }: {
   value: any;
-  key?: string;
+  key?: string | null;
 }): Field => {
   const swaggerType = mapMongooseTypeToSwaggerType(value);
   const meta: any = {};
@@ -111,7 +110,6 @@ const mapSchemaTypeToFieldSchema = ({
     meta.format = 'date-time';
   } else if (swaggerType === 'array') {
     const arraySchema = Array.isArray(value) ? value[0] : value.type[0];
-    // console.log('array schema', arraySchema);
     const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {} });
     meta.items = items;
   } else if (swaggerType === 'object') {
@@ -126,7 +124,7 @@ const mapSchemaTypeToFieldSchema = ({
     const properties = {};
 
     for (const field of fields.filter(f => f.type != null)) {
-      properties[field.field] = field;
+      properties[field.field as any] = field;
       delete field.field;
     }
 
@@ -161,12 +159,12 @@ const getFieldsFromMongooseSchema = (schema: {
 
     // swagger object
     const field: Field = mapSchemaTypeToFieldSchema({ key, value });
-    const required = [];
+    const required: string[] = [];
 
     if (field.type === 'object') {
       const { field: propName } = field;
       for (const f of Object.values(field.properties) as any[]) {
-        if (f.required) {
+        if (f.required && propName != null) {
           required.push(propName);
           delete f.required;
         }
@@ -218,7 +216,7 @@ function documentModel(Model): any {
   // root is always an object
   const obj = {
     title: Model.modelName,
-    required: [],
+    required: [] as string[],
     properties: {}
   };
 
@@ -227,7 +225,7 @@ function documentModel(Model): any {
     const { field: fieldName } = field;
     delete field.field;
     obj.properties[fieldName] = field;
-    if (field.required) {
+    if (field.required && fieldName != null) {
       obj.required.push(fieldName);
       delete field.required;
     }
