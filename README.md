@@ -24,6 +24,33 @@ const swaggerSchema = m2s(Cat);
 console.log(swaggerSchema);
 ```
 
+### Meta properties
+
+By default, `description`, `enum`, and `required` fields are extracted from the mongoose schema definitions and placed into the correspoding swagger properties definitions. Additional meta props can be whitelisted using the props array on the options argument.
+
+```ts
+
+const Cat = mongoose.model('Cat', { 
+    name: String,
+    /**
+     * Custom field
+     */
+    bar: 'baz',
+});
+
+const options = { 
+    /**
+     * Whitelist of custom fields.
+     */
+    props: ['bar'], 
+};
+
+const swaggerSchema = m2s(Cat, options);
+
+```
+
+
+
 ## Contributing
 We look forward to seeing your contributions!
 

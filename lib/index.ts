@@ -84,7 +84,7 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
   return 'object';
 };
 
-const supportedMetaProps = [
+const defaultSupportedMetaProps = [
   'enum',
   'required',
   'description'
@@ -92,15 +92,17 @@ const supportedMetaProps = [
 
 const mapSchemaTypeToFieldSchema = ({
   key = null, // null = array field
-  value
+  value,
+  props,
 }: {
   value: any;
   key?: string | null;
+  props: string[];
 }): Field => {
   const swaggerType = mapMongooseTypeToSwaggerType(value);
   const meta: any = {};
 
-  for (const metaProp of supportedMetaProps) {
+  for (const metaProp of props) {
     if (value && value[metaProp] != null) {
       meta[metaProp] = value[metaProp];
     }
@@ -110,15 +112,15 @@ const mapSchemaTypeToFieldSchema = ({
     meta.format = 'date-time';
   } else if (swaggerType === 'array') {
     const arraySchema = Array.isArray(value) ? value[0] : value.type[0];
-    const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {} });
+    const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {}, props });
     meta.items = items;
   } else if (swaggerType === 'object') {
     let fields: Array<Field> = [];
     if (value && value.constructor && value.constructor.name === 'Schema') {
-      fields = getFieldsFromMongooseSchema(value);
+      fields = getFieldsFromMongooseSchema(value, { props });
     } else {
       const subSchema = value.type ? value.type : value;
-      fields = getFieldsFromMongooseSchema({ tree: subSchema });
+      fields = getFieldsFromMongooseSchema({ tree: subSchema }, { props });
     }
 
     const properties = {};
@@ -145,7 +147,8 @@ const mapSchemaTypeToFieldSchema = ({
 
 const getFieldsFromMongooseSchema = (schema: {
   tree: Record<string, any>;
-}): any[] => {
+}, options: { props: string[] }): any[] => {
+  const { props } = options;
   const tree = schema.tree;
   const keys = Object.keys(schema.tree);
   const fields: Field[] = [];
@@ -158,7 +161,7 @@ const getFieldsFromMongooseSchema = (schema: {
     const value = tree[key];
 
     // swagger object
-    const field: Field = mapSchemaTypeToFieldSchema({ key, value });
+    const field: Field = mapSchemaTypeToFieldSchema({ key, value, props });
     const required: string[] = [];
 
     if (field.type === 'object') {
@@ -206,12 +209,16 @@ const removeOmitted = (swaggerFieldSchema: {
  * Entry Point
  * @param Model Mongoose Model Instance
  */
-function documentModel(Model): any {
+function documentModel(Model, options: { props?: string[] } = {}): any {
+  let {
+    props = [],
+  } = options;
+  props = [...defaultSupportedMetaProps, ...props];
   // console.log('swaggering', Model.modelName);
   const schema = Model.schema;
 
   // get an array of deeply hydrated fields
-  const fields = getFieldsFromMongooseSchema(schema);
+  const fields = getFieldsFromMongooseSchema(schema, { props });
 
   // root is always an object
   const obj = {
@@ -229,6 +236,10 @@ function documentModel(Model): any {
       obj.required.push(fieldName);
       delete field.required;
     }
+  }
+
+  if (!obj.required || !obj.required.length) {
+    delete obj.required;
   }
 
   return obj;

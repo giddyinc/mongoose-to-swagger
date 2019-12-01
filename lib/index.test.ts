@@ -56,7 +56,7 @@ describe('index.test.ts', () => {
     it('virtual handling', () => {
       const schema = new Schema({});
       schema.virtual('f', () => 'b');
-      const result = documentModel({schema});
+      const result = documentModel({ schema });
       const virtualField = result.properties.f;
       expect(virtualField).to.not.exist;
     });
@@ -76,7 +76,7 @@ describe('index.test.ts', () => {
           }
         }
       });
-      const result = documentModel({schema});
+      const result = documentModel({ schema });
       // console.log(JSON.stringify(result, null, 2));
       const field = result.properties.f;
       expect(field).to.exist;
@@ -128,7 +128,7 @@ describe('index.test.ts', () => {
         })]
       });
       schema.virtual('f', () => 'b');
-      const results: any[] = getFieldsFromMongooseSchema(schema as any);
+      const results: any[] = getFieldsFromMongooseSchema(schema as any, { props: [] });
 
       const nameField = results.find(x => x.field === 'name');
       expect(nameField.type, 'nameField.type').to.exist;
@@ -286,9 +286,76 @@ describe('index.test.ts', () => {
     });
   });
 
-  describe('required', () => {
+  describe('configurable meta fields', () => {
+    it('should be able to add a an arbitrary field to a property on the root object', () => {
+      const description = 'something cool';
+      const bar = 'baz';
+      const result = documentModel({
+        schema: new Schema({
+          foo: {
+            type: String,
+            description,
+            bar,
+          }
+        })
+      }, {
+        props: ['bar'],
+      });
+      // console.log(JSON.stringify(result, null, 2));
+      const field = result.properties.foo;
+      expect(field).to.exist;
+      expect(field.description).to.equal(description);
+      expect(field.bar).to.equal(bar);
+      // expect(result.required).to.not.be.empty;
+    });
 
-    it('root', () => {
+    it('should be able to add a an arbitrary field to a property on a nested object', () => {
+      const description = 'something cool';
+      const bar = 'baz';
+      const result = documentModel({
+        schema: new Schema({
+          foo: {
+            buzz: {
+              type: [{
+                barry: {
+                  type: String,
+                  description,
+                },
+              }],
+              description,
+              bar,
+            }
+          }
+        })
+      }, {
+        props: ['bar'],
+      });
+      // console.log(JSON.stringify(result, null, 2));
+      const field = result.properties.foo.properties.buzz;
+      expect(field).to.exist;
+      expect(field.description).to.equal(description);
+      expect(field.bar).to.equal(bar);
+      expect(field.items.properties.barry.description).to.equal(description);
+      // expect(result.required).to.not.be.empty;
+    });
+  });
+
+  describe('required array', () => {
+    it('root props without required fields shold omit required array (for space?)', () => {
+      const result = documentModel({
+        schema: new Schema({
+          foo: {
+            type: String,
+            enum: ['bar', 'baz'],
+            // required: true,
+          }
+        })
+      });
+      // console.log(result);
+      expect(result.required).to.not.exist;
+    });
+
+    it('root with required fields should have the required array', () => {
       const result = documentModel({
         schema: new Schema({
           foo: {
@@ -300,6 +367,7 @@ describe('index.test.ts', () => {
       });
       // console.log(result);
       expect(result.required).to.not.be.empty;
+      expect(result.required).to.include('foo');
     });
 
     it('nested', () => {
