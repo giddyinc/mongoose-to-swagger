@@ -43,8 +43,12 @@
     "lint": "eslint ./lib --ext .ts",
     "test:watch": "mocha lib/*.test.js --watch",
     "test": "mocha lib/*.test.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "npm run build"
   },
   "dependencies": {},
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "dist"
+  ]
 }
