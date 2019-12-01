@@ -1,0 +1,82 @@
+{
+  "definitions": {
+    "Cat": {
+      "title": "Cat",
+      "required": [
+        "name",
+        "color",
+        "paws"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "color": {
+          "type": "string",
+          "required": true
+        },
+        "hasTail": {
+          "type": "boolean",
+          "field": "hasTail"
+        },
+        "paws": {
+          "type": "array",
+          "required": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "numToes": {
+                "type": "number",
+                "required": true
+              },
+              "_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "_id": {
+          "type": "string",
+          "field": "_id"
+        },
+        "__v": {
+          "type": "number",
+          "field": "__v"
+        }
+      }
+    }
+  },
+  "host": "",
+  "info": {
+    "title": "My Express App",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/cats": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "All Cats",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Cat"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Cats"
+        ],
+        "parameters": []
+      }
+    }
+  },
+  "securityDefinitions": {},
+  "swagger": "2.0",
+  "tags": []
+}
