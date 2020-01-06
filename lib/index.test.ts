@@ -10,6 +10,13 @@ const { getFieldsFromMongooseSchema } = documentModel;
 */
 
 describe('index.test.ts', () => {
+
+  it.skip('should do something', () => {
+    const Cat = mongoose.model('Cat', new Schema({name: String}));
+    const swaggerSchema = documentModel(Cat);
+    expect(swaggerSchema.properties).to.exist;
+  });
+
   describe('adjustType', () => {
     it('should work for string', () => {
       const result = documentModel.adjustType('String');
@@ -17,11 +24,11 @@ describe('index.test.ts', () => {
     });
     it('should work for object - 1 of 2', () => {
       const result = documentModel.adjustType('ObjectId');
-      expect(result).to.equal('object');
+      expect(result).to.equal('string');
     });
     it('should work for object - 2 of 2 - different spelling', () => {
       const result = documentModel.adjustType('ObjectID');
-      expect(result).to.equal('object');
+      expect(result).to.equal('string');
     });
   });
 
