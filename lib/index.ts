@@ -15,6 +15,10 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
     return 'string';
   }
 
+  if (type.schemaName === 'Mixed') {
+    return 'object';
+  }
+
   if (type === 'ObjectId' || type === 'ObjectID') {
     return 'string';
   }
@@ -91,7 +95,7 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
 const defaultSupportedMetaProps = [
   'enum',
   'required',
-  'description'
+  'description',
 ];
 
 const mapSchemaTypeToFieldSchema = ({
@@ -124,7 +128,9 @@ const mapSchemaTypeToFieldSchema = ({
       fields = getFieldsFromMongooseSchema(value, { props });
     } else {
       const subSchema = value.type ? value.type : value;
-      fields = getFieldsFromMongooseSchema({ tree: subSchema }, { props });
+      if ((subSchema.schemaName !== 'Mixed' && !subSchema.subpaths)) {
+        fields = getFieldsFromMongooseSchema({ tree: subSchema }, { props });
+      }
     }
 
     const properties = {};
@@ -228,7 +234,7 @@ function documentModel(Model, options: { props?: string[] } = {}): any {
   const obj = {
     title: Model.modelName,
     required: [] as string[],
-    properties: {}
+    properties: {},
   };
 
   // key deeply hydrated fields by field name

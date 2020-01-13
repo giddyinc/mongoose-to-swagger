@@ -11,10 +11,85 @@ const { getFieldsFromMongooseSchema } = documentModel;
 
 describe('index.test.ts', () => {
 
+  describe('mixed', () => {
+    it('basic mixed type handling', () => {
+      const schema = new mongoose.Schema({
+        a: {
+          type: mongoose.Schema.Types.Mixed,
+        },
+      });
+      const swagger = documentModel({ schema });
+      expect(swagger.properties).to.exist;
+      expect(swagger.properties.a.type).to.equal('object');
+      expect(swagger.properties.a.properties).to.deep.equal({});
+      console.log(JSON.stringify(swagger, null, 2));
+    });
+    it('basic mixed type handling - inferred', () => {
+      const schema = new mongoose.Schema({
+        a: {
+          type: {},
+        },
+      });
+      const swagger = documentModel({ schema });
+      expect(swagger.properties).to.exist;
+      expect(swagger.properties.a.type).to.equal('object');
+      expect(swagger.properties.a.properties).to.deep.equal({});
+      console.log(JSON.stringify(swagger, null, 2));
+    });
+    it('basic mixed type handling - inferred shorthand', () => {
+      const schema = new mongoose.Schema({
+        a: {},
+      });
+      const swagger = documentModel({ schema });
+      expect(swagger.properties).to.exist;
+      expect(swagger.properties.a.type).to.equal('object');
+      expect(swagger.properties.a.properties).to.deep.equal({});
+      console.log(JSON.stringify(swagger, null, 2));
+    });
+
+    it('nested mixed type handling', () => {
+      const schema = new mongoose.Schema({
+        a: new mongoose.Schema({
+          b: {
+            type: new mongoose.Schema({}),
+          },
+        }),
+      });
+      const swagger = documentModel({ schema: schema });
+      expect(swagger.properties).to.exist;
+      console.log(JSON.stringify(swagger, null, 2));
+      expect(swagger.properties.a.properties.b.type).to.equal('object');
+      expect(swagger.properties.a.properties.b.properties).to.deep.equal({});
+    });
+
+    it('nested mixed type handling - inferred shorthand', () => {
+      const schema = new mongoose.Schema({
+        a: new mongoose.Schema({
+          b: {},
+        }),
+      });
+      const swagger = documentModel({ schema: schema });
+      expect(swagger.properties).to.exist;
+      expect(swagger.properties.a.properties.b.type).to.equal('object');
+      expect(swagger.properties.a.properties.b.properties).to.deep.equal({});
+    });
+    it('nested mixed type handling - inferred shorthand 2', () => {
+      const schema = new mongoose.Schema({
+        a: new mongoose.Schema({
+          b: { type: {} },
+        }),
+      });
+      const swagger = documentModel({ schema: schema });
+      expect(swagger.properties).to.exist;
+      expect(swagger.properties.a.properties.b.type).to.equal('object');
+      expect(swagger.properties.a.properties.b.properties).to.deep.equal({});
+    });
+  });
+
   it.skip('should do something', () => {
-    const Cat = mongoose.model('Cat', new Schema({name: String}));
-    const swaggerSchema = documentModel(Cat);
-    expect(swaggerSchema.properties).to.exist;
+    const Cat = mongoose.model('Cat', new Schema({ name: String }));
+    const swagger = documentModel(Cat);
+    expect(swagger.properties).to.exist;
   });
 
   describe('adjustType', () => {
@@ -45,18 +120,18 @@ describe('index.test.ts', () => {
         hidden: { type: Boolean, required: true },
         meta: {
           votes: Number,
-          favs: Number
+          favs: Number,
         },
         user: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'User'
+          ref: 'User',
         },
         nestedUser: new mongoose.Schema({
           user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-          }
-        })
+            ref: 'User',
+          },
+        }),
       });
     });
 
@@ -80,8 +155,8 @@ describe('index.test.ts', () => {
           things: {
             type: [Thing],
             required: true,
-          }
-        }
+          },
+        },
       });
       const result = documentModel({ schema });
       // console.log(JSON.stringify(result, null, 2));
@@ -93,46 +168,46 @@ describe('index.test.ts', () => {
       expect(field.properties.things.items.required).to.include('cost');
     });
 
-    it('+', () => {
+    it('other various types', () => {
       const schema = new Schema({
         name: String,
         tags: [String],
         age: {
-          type: Number
+          type: Number,
         },
         bonus: {
           max: {
-            type: Number
-          }
+            type: Number,
+          },
         },
         names: {
           asd: String,
           fgh: [String],
           fgz: [Number],
           jkl: [{
-            foo: String
+            foo: String,
           }],
         },
         birthday: Date,
         birthday2: { type: Date },
         status: {
-          type: Number
+          type: Number,
         },
         ref: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'ref',
-          required: true
+          required: true,
         },
         bla: [{
           foo: String,
-          bar: String
+          bar: String,
         }],
         schemaArr: [new Schema({
           type: {
             type: Number,
-            enum: [1, 2, 3]
-          }
-        })]
+            enum: [1, 2, 3],
+          },
+        })],
       });
       schema.virtual('f', () => 'b');
       const results: any[] = getFieldsFromMongooseSchema(schema as any, { props: [] });
@@ -182,10 +257,10 @@ describe('index.test.ts', () => {
         schema: new mongoose.Schema({
           scopes: [
             {
-              actions: [String]
-            }
-          ]
-        })
+              actions: [String],
+            },
+          ],
+        }),
       });
       const props = result.properties;
       expect(props.scopes).to.exist;
@@ -198,10 +273,10 @@ describe('index.test.ts', () => {
         schema: new mongoose.Schema({
           scopes: [
             {
-              actions: [{ type: String, required: true }]
-            }
-          ]
-        })
+              actions: [{ type: String, required: true }],
+            },
+          ],
+        }),
       });
       const props = result.properties;
       expect(props.scopes).to.exist;
@@ -225,9 +300,9 @@ describe('index.test.ts', () => {
       const result = documentModel({
         schema: new Schema({
           author: {
-            type: 'string'
-          }
-        })
+            type: 'string',
+          },
+        }),
       });
       const props = result.properties;
       // console.log(props);
@@ -242,8 +317,8 @@ describe('index.test.ts', () => {
             type: String,
             enum: ['bar', 'baz'],
             required: true,
-          }
-        })
+          },
+        }),
       });
       const props = result.properties;
       expect(props.foo).to.exist;
@@ -303,8 +378,8 @@ describe('index.test.ts', () => {
             type: String,
             description,
             bar,
-          }
-        })
+          },
+        }),
       }, {
         props: ['bar'],
       });
@@ -331,9 +406,9 @@ describe('index.test.ts', () => {
               }],
               description,
               bar,
-            }
-          }
-        })
+            },
+          },
+        }),
       }, {
         props: ['bar'],
       });
@@ -355,8 +430,8 @@ describe('index.test.ts', () => {
             type: String,
             enum: ['bar', 'baz'],
             // required: true,
-          }
-        })
+          },
+        }),
       });
       // console.log(result);
       expect(result.required).to.not.exist;
@@ -369,8 +444,8 @@ describe('index.test.ts', () => {
             type: String,
             enum: ['bar', 'baz'],
             required: true,
-          }
-        })
+          },
+        }),
       });
       // console.log(result);
       expect(result.required).to.not.be.empty;
@@ -382,7 +457,7 @@ describe('index.test.ts', () => {
         numToes: {
           type: Number,
           required: true,
-        }
+        },
       });
 
       const schema = new Schema({
@@ -400,7 +475,7 @@ describe('index.test.ts', () => {
         paws: {
           type: [Paw],
           required: true,
-        }
+        },
       });
       const result = documentModel({ schema });
       // console.log(JSON.stringify(result, null, 2));
@@ -418,7 +493,7 @@ describe('index.test.ts', () => {
         numToes: {
           type: Number,
           required: true,
-        }
+        },
       });
 
       const schema = new Schema({
@@ -433,7 +508,7 @@ describe('index.test.ts', () => {
         hasTail: {
           type: Boolean,
         },
-        paws: [Paw]
+        paws: [Paw],
       });
       const result = documentModel({ schema });
       // console.log(JSON.stringify(result, null, 2));
@@ -446,7 +521,7 @@ describe('index.test.ts', () => {
       expect(f).to.exist;
     });
 
-    it('k', () => {
+    it('other various types', () => {
       const schema = new mongoose.Schema({
         a: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
         b: { type: Number, default: 0 },
