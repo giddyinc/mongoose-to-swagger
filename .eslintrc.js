@@ -29,5 +29,7 @@ module.exports = {
     'padded-blocks': 0,
     'padding-line-between-statements': 0,
     'valid-jsdoc': 0,
+    'semi': [2, 'always'],
+    'comma-dangle': [2, 'always-multiline'],
   }
 }
