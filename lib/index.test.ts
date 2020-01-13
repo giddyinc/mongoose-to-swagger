@@ -59,7 +59,11 @@ describe('index.test.ts', () => {
       expect(swagger.properties).to.exist;
       console.log(JSON.stringify(swagger, null, 2));
       expect(swagger.properties.a.properties.b.type).to.equal('object');
-      expect(swagger.properties.a.properties.b.properties).to.deep.equal({});
+      expect(swagger.properties.a.properties.b.properties).to.deep.equal({
+        _id: {
+          type: 'string',
+        },
+      });
     });
 
     it('nested mixed type handling - inferred shorthand', () => {
@@ -73,16 +77,41 @@ describe('index.test.ts', () => {
       expect(swagger.properties.a.properties.b.type).to.equal('object');
       expect(swagger.properties.a.properties.b.properties).to.deep.equal({});
     });
+
     it('nested mixed type handling - inferred shorthand 2', () => {
       const schema = new mongoose.Schema({
         a: new mongoose.Schema({
           b: { type: {} },
+          c: String,
         }),
       });
       const swagger = documentModel({ schema: schema });
+      console.log(JSON.stringify(swagger, null, 2));
       expect(swagger.properties).to.exist;
+      expect(swagger.properties.a.properties.c.type).to.equal('string');
       expect(swagger.properties.a.properties.b.type).to.equal('object');
       expect(swagger.properties.a.properties.b.properties).to.deep.equal({});
+    });
+
+    it('nested mixed type handling - addtl fields', () => {
+      const schema = new mongoose.Schema({
+        a: new mongoose.Schema({
+          b: {
+            type: new mongoose.Schema({
+              d: String,
+              e: new mongoose.Schema({}),
+            }),
+          },
+          c: String,
+        }),
+      });
+      const swagger = documentModel({ schema: schema });
+      console.log(JSON.stringify(swagger, null, 2));
+      expect(swagger.properties).to.exist;
+      expect(swagger.properties.a.properties.c.type).to.equal('string');
+      expect(swagger.properties.a.properties.b.type).to.equal('object');
+      expect(swagger.properties.a.properties.b.properties.d.type).to.equal('string');
+      expect(swagger.properties.a.properties.b.properties.e.type).to.equal('object');
     });
   });
 

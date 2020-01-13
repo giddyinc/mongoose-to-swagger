@@ -128,8 +128,10 @@ const mapSchemaTypeToFieldSchema = ({
       fields = getFieldsFromMongooseSchema(value, { props });
     } else {
       const subSchema = value.type ? value.type : value;
-      if ((subSchema.schemaName !== 'Mixed' && !subSchema.subpaths)) {
-        fields = getFieldsFromMongooseSchema({ tree: subSchema }, { props });
+      if (subSchema.obj && Object.keys(subSchema.obj).length > 0) {
+        fields = getFieldsFromMongooseSchema({ tree: subSchema.tree ? subSchema.tree : subSchema }, { props });
+      } else if (subSchema.schemaName !== 'Mixed') {
+        fields = getFieldsFromMongooseSchema({ tree: subSchema.tree ? subSchema.tree : subSchema }, { props });
       }
     }
 
