@@ -1,4 +1,6 @@
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url][![Dependency Status][daviddm-image]][daviddm-url] [![Coverage Status][coveralls-image]][coveralls-url]
+[![NPM version][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
 
 # mongoose-to-swagger 
 
@@ -63,7 +65,5 @@ MIT © [Ben Lugavere](http://benlugavere.com/)
 [npm-url]: https://npmjs.org/package/mongoose-to-swagger
 [travis-image]: https://travis-ci.org/giddyinc/mongoose-to-swagger.svg?branch=master
 [travis-url]: https://travis-ci.org/giddyinc/mongoose-to-swagger
-[daviddm-image]: https://david-dm.org/giddyinc/mongoose-to-swagger.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/giddyinc/mongoose-to-swagger
 [coveralls-image]: https://coveralls.io/repos/giddyinc/mongoose-to-swagger/badge.svg?branch=master
 [coveralls-url]: https://coveralls.io/r/giddyinc/mongoose-to-swagger?branch=master
