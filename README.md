@@ -33,11 +33,15 @@ By default, `description`, `enum`, and `required` fields are extracted from the 
 ```ts
 
 const Cat = mongoose.model('Cat', { 
-    name: String,
-    /**
-     * Custom field
-     */
-    bar: 'baz',
+    name: {
+        type: String,
+        /**
+         * Custom Properties
+         * `description` is enabled by default
+         */
+        description: 'Name of the cat', //description is enabled by default
+        bar: 'baz'
+    },
 });
 
 const options = { 
