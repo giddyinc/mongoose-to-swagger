@@ -11,7 +11,7 @@ const Paw = new Schema({
   numToes: {
     type: Number,
     required: true,
-  }
+  },
 });
 
 const schema = new Schema({
@@ -29,7 +29,11 @@ const schema = new Schema({
   paws: {
     type: [Paw],
     required: true,
-  }
+  },
+  mealPreferences: {
+    type: Map,
+    of: String,
+  },
 });
 
 const Cat = mongoose.model('Cat', schema);
@@ -41,7 +45,7 @@ const swagger = {
   host: '',
   info: {
     title: 'My Express App',
-    version: '1.0.0'
+    version: '1.0.0',
   },
   paths: {
     '/cats': {
@@ -51,25 +55,25 @@ const swagger = {
             description: 'All Cats',
             schema: {
               items: {
-                $ref: '#/definitions/Cat'
+                $ref: '#/definitions/Cat',
               },
-              type: 'array'
-            }
-          }
+              type: 'array',
+            },
+          },
         },
         produces: [
-          'application/json'
+          'application/json',
         ],
         tags: [
-          'Cats'
+          'Cats',
         ],
-        parameters: []
-      }
-    }
+        parameters: [],
+      },
+    },
   },
   securityDefinitions: {},
   swagger: '2.0',
-  tags: []
+  tags: [],
 };
 
 // fs.writeFileSync(path.join(__dirname, './swagger.json'), JSON.stringify(swagger, null, 2));
