@@ -39,8 +39,8 @@ const Cat = mongoose.model('Cat', {
          * Custom Properties
          * `description` is enabled by default
          */
-        description: 'Name of the cat', //description is enabled by default
-        bar: 'baz'
+        description: 'Name of the cat', // description is enabled by default
+        bar: 'baz' // custom prop
     },
 });
 
