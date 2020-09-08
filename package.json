@@ -1,6 +1,6 @@
 {
   "name": "mongoose-to-swagger",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Conversion library for transforming Mongoose schema objects into Swagger schema definitions.",
   "homepage": "",
   "author": {
