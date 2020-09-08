@@ -147,6 +147,10 @@ describe('index.test.ts', () => {
         likes: [],
         date: { type: Date, default: Date.now },
         hidden: { type: Boolean, required: true },
+        toggles: {
+          type: Map,
+          of: Boolean,
+        },
         meta: {
           votes: Number,
           favs: Number,
@@ -366,6 +370,16 @@ describe('index.test.ts', () => {
       expect(props.date).to.exist;
       expect(props.date.type).to.equal('string');
       expect(props.date.format).to.equal('date-time');
+    });
+
+    it('map', () => {
+      const result = documentModel({ schema });
+      const props = result.properties;
+      expect(props.toggles).to.exist;
+      expect(props.toggles.type).to.equal('object');
+      const additionalProperties = props.toggles.additionalProperties;
+      expect(additionalProperties).to.exist;
+      expect(additionalProperties.type).to.equal('boolean');
     });
 
     it('mongoose model relation', () => {

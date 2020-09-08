@@ -2,7 +2,7 @@
 import { isString } from 'util';
 import { ObjectId } from 'bson';
 
-const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | 'array' | 'object' | null => {
+const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | 'array' | 'object' | 'map' | null => {
   if (!type) {
     return null;
   }
@@ -29,6 +29,10 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
 
   if (type === Boolean || (isString(type) && type.toLowerCase() === 'boolean')) {
     return 'boolean';
+  }
+
+  if (type === Map) {
+    return 'map';
   }
 
   if (type instanceof Function) {
@@ -143,6 +147,12 @@ const mapSchemaTypeToFieldSchema = ({
     }
 
     meta.properties = properties;
+  } else if (swaggerType === 'map') {
+    const subSchema = mapSchemaTypeToFieldSchema({ value: value.of || {}, props });
+    // swagger defines map as an `object` type
+    meta.type = 'object';
+    // with `additionalProperties` instead of `properties`
+    meta.additionalProperties = subSchema;
   }
 
   const result = {
@@ -178,7 +188,8 @@ const getFieldsFromMongooseSchema = (schema: {
 
     if (field.type === 'object') {
       const { field: propName } = field;
-      for (const f of Object.values(field.properties) as any[]) {
+      const fieldProperties = field.properties || field.additionalProperties;
+      for (const f of Object.values(fieldProperties) as any[]) {
         if (f.required && propName != null) {
           required.push(propName);
           delete f.required;
@@ -287,7 +298,8 @@ type ObjectField = {
   format?: string;
   field?: string;
   required: string[];
-  properties: any;
+  properties?: any;
+  additionalProperties?: any;
 }
 type ArrayField = {
   type: 'array',
