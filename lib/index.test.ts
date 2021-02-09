@@ -587,7 +587,22 @@ describe('index.test.ts', () => {
 
   });
 
-  it('should be able to remove _id field', () => {
+  it('should be able to remove _id field by default', () => {
+    const result = documentModel({
+      schema: new Schema({
+        foo: {
+          name: String,
+          surname: String,
+          nickname: String,
+        },
+      }),
+    });
+    const root = result.properties;
+    expect(root).to.exist;
+    expect(root._id).to.not.exist;
+  });
+
+  it('should be able to leave _id field', () => {
     const result = documentModel({
       schema: new Schema({
         foo: {
@@ -597,10 +612,10 @@ describe('index.test.ts', () => {
         },
       }),
     }, {
-      omitId: true,
+      omitId: false,
     });
     const root = result.properties;
     expect(root).to.exist;
-    expect(root._id).to.not.exist;
+    expect(root._id).to.exist;
   });
 });
