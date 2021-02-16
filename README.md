@@ -42,13 +42,18 @@ const Cat = mongoose.model('Cat', {
         description: 'Name of the cat', // description is enabled by default
         bar: 'baz' // custom prop
     },
+    color: String
 });
 
 const options = { 
     /**
-     * Whitelist of custom fields.
+     * Whitelist of custom meta fields.
      */
-    props: ['bar'], 
+    props: ['bar'],
+    /**
+     * Fields to omit from model root. "__v" is omitted by default
+     */
+    omitFields: ['_id', 'color'], 
 };
 
 const swaggerSchema = m2s(Cat, options);

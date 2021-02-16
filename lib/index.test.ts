@@ -587,35 +587,41 @@ describe('index.test.ts', () => {
 
   });
 
-  it('should be able to remove _id field by default', () => {
+  it('should be able to remove custom fields', () => {
     const result = documentModel({
       schema: new Schema({
-        foo: {
-          name: String,
-          surname: String,
-          nickname: String,
-        },
-      }),
-    });
-    const root = result.properties;
-    expect(root).to.exist;
-    expect(root._id).to.not.exist;
-  });
-
-  it('should be able to leave _id field', () => {
-    const result = documentModel({
-      schema: new Schema({
-        foo: {
-          name: String,
-          surname: String,
-          nickname: String,
-        },
+        name: String,
+        surname: String,
+        nickname: String,
       }),
     }, {
-      omitId: false,
+      omitFields: ['_id', 'surname'],
     });
     const root = result.properties;
+
+    expect(root).to.exist;
+    expect(root._id).to.not.exist;
+    expect(root.surname).to.not.exist;
+    expect(root.__v).to.not.exist;
+    expect(root.name).to.exist;
+    expect(root.nickname).to.exist;
+  });
+
+  it('should be able to remove __v field and leave other fields by default', () => {
+    const result = documentModel({
+      schema: new Schema({
+        name: String,
+        surname: String,
+        nickname: String,
+      }),
+    });
+    const root = result.properties;
+
     expect(root).to.exist;
     expect(root._id).to.exist;
+    expect(root.name).to.exist;
+    expect(root.nickname).to.exist;
+    expect(root.surname).to.exist;
+    expect(root.__v).to.not.exist;
   });
 });
