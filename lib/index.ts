@@ -214,29 +214,31 @@ const getFieldsFromMongooseSchema = (schema: {
   return fields;
 };
 
-const omitted = new Set(['__v']);
-const removeOmitted = (swaggerFieldSchema: {
-  /**
-   * for setting field on .properties map - gets removed before returned
-   */
-  field: string,
-  /**
-   * swagger type
-   */
-  type: string,
-}) => {
-  return swaggerFieldSchema.type != null && !omitted.has(swaggerFieldSchema.field);
-};
-
 /**
  * Entry Point
  * @param Model Mongoose Model Instance
  */
-function documentModel(Model, options: { props?: string[] } = {}): any {
+function documentModel(Model, options: { props?: string[], omitFields?: string[] } = {}): any {
   let {
     props = [],
+    omitFields = [],
   } = options;
   props = [...defaultSupportedMetaProps, ...props];
+
+  let omitted = new Set(['__v', ...omitFields]);
+  const removeOmitted = (swaggerFieldSchema: {
+    /**
+     * for setting field on .properties map - gets removed before returned
+     */
+    field: string,
+    /**
+     * swagger type
+     */
+    type: string,
+  }) => {
+    return swaggerFieldSchema.type != null && !omitted.has(swaggerFieldSchema.field);
+  };
+
   // console.log('swaggering', Model.modelName);
   const schema = Model.schema;
 
