@@ -241,6 +241,9 @@ describe('index.test.ts', () => {
             enum: [1, 2, 3],
           },
         })],
+        decimal: {
+          type: mongoose.Types.Decimal128,
+        },
       });
       schema.virtual('f', () => 'b');
       const results: any[] = getFieldsFromMongooseSchema(schema as any, { props: [] });
@@ -280,6 +283,9 @@ describe('index.test.ts', () => {
       if (schemaArr.items.type !== 'object') {
         throw new Error('fail');
       }
+
+      const decimal = results.find(x => x.field === 'decimal');
+      expect(decimal.type).to.equal('number');
 
       expect(schemaArr.items.properties).to.exist;
       expect(schemaArr.items.properties.type).to.exist;

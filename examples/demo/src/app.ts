@@ -34,6 +34,9 @@ const schema = new Schema({
     type: Map,
     of: String,
   },
+  price:{
+    type: mongoose.Types.Decimal128,
+  }
 });
 
 const Cat = mongoose.model('Cat', schema);
