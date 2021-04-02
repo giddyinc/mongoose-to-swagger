@@ -79,6 +79,7 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
       case 'SchemaBoolean':
         return 'boolean';
       case 'Number':
+      case 'Decimal128':
       case 'SchemaNumber':
         return 'number';
       default:
