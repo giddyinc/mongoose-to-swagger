@@ -15,7 +15,8 @@
         "sourceMap": true,
         "alwaysStrict": true,
         "target": "es2017",
-        "noUnusedParameters": false
+        "noUnusedParameters": false,
+        "skipLibCheck": true
     },
     "include": [
         "lib"
