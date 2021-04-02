@@ -45,6 +45,10 @@ const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | '
       return 'string';
     }
 
+    if (type.name === 'Decimal128') {
+      return 'number';
+    }
+
     return type.name.toLowerCase();
   }
 
