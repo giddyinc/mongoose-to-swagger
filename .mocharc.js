@@ -11,7 +11,6 @@ module.exports = {
   package: './package.json',
   reporter: 'spec',
   ui: 'bdd',
-  'watch-files': ['*.ts'],
   'watch-extensions': ['ts'],
   recursive: true,
   exit: true,

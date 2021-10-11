@@ -469,6 +469,17 @@ describe('index.test.ts', () => {
       expect(field.items.properties.barry.description).to.equal(description);
       // expect(result.required).to.not.be.empty;
     });
+
+    it('id should be excluded by default', () => {
+      const schema = new Schema({
+      });
+      const result = documentModel({
+        schema,
+      });
+      // console.log(JSON.stringify(result, null, 2));
+      expect(result.properties).to.not.have.keys('id');
+      expect(result.properties).to.have.keys('_id');
+    });
   });
 
   describe('required array', () => {
