@@ -1,6 +1,7 @@
 
-import { isString } from 'util';
 import { ObjectId } from 'bson';
+
+const isString = value => typeof value === 'string';
 
 const mapMongooseTypeToSwaggerType = (type): 'string' | 'number' | 'boolean' | 'array' | 'object' | 'map' | null => {
   if (!type) {
