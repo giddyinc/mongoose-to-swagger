@@ -66,6 +66,20 @@ describe('index.test.ts', () => {
       });
     });
 
+    it('nested omitFields handling', () => {
+      const schema = new mongoose.Schema({
+        a: new mongoose.Schema({
+          b: {
+            type: new mongoose.Schema({}),
+          },
+        }),
+      });
+      const swagger = documentModel({ schema: schema }, { omitFields: ['_id'] });
+      expect(swagger.properties._id).to.be.undefined;
+      expect(swagger.properties.a.properties._id).to.be.undefined;
+      expect(swagger.properties.a.properties.b._id).to.be.undefined;
+    });
+
     it('nested mixed type handling - inferred shorthand', () => {
       const schema = new mongoose.Schema({
         a: new mongoose.Schema({
@@ -246,7 +260,7 @@ describe('index.test.ts', () => {
         },
       });
       schema.virtual('f', () => 'b');
-      const results: any[] = getFieldsFromMongooseSchema(schema as any, { props: [] });
+      const results: any[] = getFieldsFromMongooseSchema(schema as any, { props: [], omitFields: [] });
 
       const nameField = results.find(x => x.field === 'name');
       expect(nameField.type, 'nameField.type').to.exist;

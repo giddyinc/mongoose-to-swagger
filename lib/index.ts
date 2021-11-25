@@ -112,10 +112,12 @@ const mapSchemaTypeToFieldSchema = ({
   key = null, // null = array field
   value,
   props,
+  omitFields
 }: {
   value: any;
   key?: string | null;
   props: string[];
+  omitFields: string[]
 }): Field => {
   const swaggerType = mapMongooseTypeToSwaggerType(value);
   const meta: any = {};
@@ -130,18 +132,18 @@ const mapSchemaTypeToFieldSchema = ({
     meta.format = 'date-time';
   } else if (swaggerType === 'array') {
     const arraySchema = Array.isArray(value) ? value[0] : value.type[0];
-    const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {}, props });
+    const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {}, props, omitFields });
     meta.items = items;
   } else if (swaggerType === 'object') {
     let fields: Array<Field> = [];
     if (value && value.constructor && value.constructor.name === 'Schema') {
-      fields = getFieldsFromMongooseSchema(value, { props });
+      fields = getFieldsFromMongooseSchema(value, { props, omitFields });
     } else {
       const subSchema = value.type ? value.type : value;
       if (subSchema.obj && Object.keys(subSchema.obj).length > 0) {
-        fields = getFieldsFromMongooseSchema({ tree: subSchema.tree ? subSchema.tree : subSchema }, { props });
+        fields = getFieldsFromMongooseSchema({ tree: subSchema.tree ? subSchema.tree : subSchema }, { props, omitFields });
       } else if (subSchema.schemaName !== 'Mixed') {
-        fields = getFieldsFromMongooseSchema({ tree: subSchema.tree ? subSchema.tree : subSchema }, { props });
+        fields = getFieldsFromMongooseSchema({ tree: subSchema.tree ? subSchema.tree : subSchema }, { props, omitFields });
       }
     }
 
@@ -154,7 +156,7 @@ const mapSchemaTypeToFieldSchema = ({
 
     meta.properties = properties;
   } else if (swaggerType === 'map') {
-    const subSchema = mapSchemaTypeToFieldSchema({ value: value.of || {}, props });
+    const subSchema = mapSchemaTypeToFieldSchema({ value: value.of || {}, props, omitFields });
     // swagger defines map as an `object` type
     meta.type = 'object';
     // with `additionalProperties` instead of `properties`
@@ -175,8 +177,9 @@ const mapSchemaTypeToFieldSchema = ({
 
 const getFieldsFromMongooseSchema = (schema: {
   tree: Record<string, any>;
-}, options: { props: string[] }): any[] => {
-  const { props } = options;
+}, options: { props: string[], omitFields: string[] }): any[] => {
+  const { props, omitFields } = options;
+  let omitted = new Set(['__v', ...omitFields || []]);
   const tree = schema.tree;
   const keys = Object.keys(schema.tree);
   const fields: Field[] = [];
@@ -184,12 +187,12 @@ const getFieldsFromMongooseSchema = (schema: {
   // loop over the tree of mongoose schema types
   // and return an array of swagger fields
   for (const key of keys
-    .filter(x => x != 'id')
+    .filter(x => x != 'id' && !omitted.has(x))
   ) {
     const value = tree[key];
 
     // swagger object
-    const field: Field = mapSchemaTypeToFieldSchema({ key, value, props });
+    const field: Field = mapSchemaTypeToFieldSchema({ key, value, props, omitFields });
     const required: string[] = [];
 
     if (field.type === 'object') {
@@ -231,8 +234,7 @@ function documentModel(Model, options: { props?: string[], omitFields?: string[]
   } = options;
   props = [...defaultSupportedMetaProps, ...props];
 
-  let omitted = new Set(['__v', ...omitFields]);
-  const removeOmitted = (swaggerFieldSchema: {
+  const removeVirtual = (swaggerFieldSchema: {
     /**
      * for setting field on .properties map - gets removed before returned
      */
@@ -242,14 +244,14 @@ function documentModel(Model, options: { props?: string[], omitFields?: string[]
      */
     type: string,
   }) => {
-    return swaggerFieldSchema.type != null && !omitted.has(swaggerFieldSchema.field);
+    return swaggerFieldSchema.type != null;
   };
 
   // console.log('swaggering', Model.modelName);
   const schema = Model.schema;
 
   // get an array of deeply hydrated fields
-  const fields = getFieldsFromMongooseSchema(schema, { props });
+  const fields = getFieldsFromMongooseSchema(schema, { props, omitFields });
 
   // root is always an object
   const obj = {
@@ -259,7 +261,7 @@ function documentModel(Model, options: { props?: string[], omitFields?: string[]
   };
 
   // key deeply hydrated fields by field name
-  for (const field of fields.filter(removeOmitted)) {
+  for (const field of fields.filter(removeVirtual)) {
     const { field: fieldName } = field;
     delete field.field;
     obj.properties[fieldName] = field;
