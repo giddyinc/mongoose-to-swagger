@@ -187,7 +187,7 @@ const getFieldsFromMongooseSchema = (schema: {
   // loop over the tree of mongoose schema types
   // and return an array of swagger fields
   for (const key of keys
-    .filter(x => x != 'id' && !omitted.has(x))
+    .filter(x => !omitted.has(x))
   ) {
     const value = tree[key];
 
