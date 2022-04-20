@@ -51,9 +51,13 @@ const options = {
      */
     props: ['bar'],
     /**
-     * Fields to omit from model root. "__v" is omitted by default
+     * Fields to omit from model root. "__v" and "id" are omitted by default with omitMongooseInternals (default: true)
      */
     omitFields: ['_id', 'color'], 
+    /**
+     * Omit mongoose internals, omits mongoose internals from result ("__v", "id" - mongoose version field and virtual id field) (default: true)
+     */
+    omitMongooseInternals: false
 };
 
 const swaggerSchema = m2s(Cat, options);

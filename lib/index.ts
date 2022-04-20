@@ -112,7 +112,7 @@ const mapSchemaTypeToFieldSchema = ({
   key = null, // null = array field
   value,
   props,
-  omitFields
+  omitFields,
 }: {
   value: any;
   key?: string | null;
@@ -177,9 +177,9 @@ const mapSchemaTypeToFieldSchema = ({
 
 const getFieldsFromMongooseSchema = (schema: {
   tree: Record<string, any>;
-}, options: { props: string[], omitFields: string[] }): any[] => {
-  const { props, omitFields } = options;
-  let omitted = new Set(['__v', ...omitFields || []]);
+}, options: { props: string[], omitFields: string[], omitMongooseInternals?: boolean }): any[] => {
+  const { props, omitFields, omitMongooseInternals = true } = options;
+  const omitted = new Set([...(omitMongooseInternals ? ['__v', 'id'] : []), ...omitFields || []]);
   const tree = schema.tree;
   const keys = Object.keys(schema.tree);
   const fields: Field[] = [];
@@ -187,7 +187,7 @@ const getFieldsFromMongooseSchema = (schema: {
   // loop over the tree of mongoose schema types
   // and return an array of swagger fields
   for (const key of keys
-    .filter(x => x != 'id' && !omitted.has(x))
+    .filter(x => !omitted.has(x))
   ) {
     const value = tree[key];
 
