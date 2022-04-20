@@ -215,6 +215,65 @@ describe('index.test.ts', () => {
       expect(field.properties.things.items.required).to.include('cost');
     });
 
+    it('should respect omitMongooseInternals option', () => {
+      const schema = new Schema({
+        name: String,
+        id: String,
+        __v: Number,
+      });
+
+      const results: any[] = getFieldsFromMongooseSchema(schema as any, {
+        props: [],
+        omitFields: [],
+        omitMongooseInternals: false,
+      });
+
+      const nameField = results.find(x => x.field === 'name');
+      expect(nameField.type, 'nameField.type').to.exist;
+      expect(nameField.type).to.equal('string');
+
+      const idField = results.find(x => x.field === 'id');
+
+      expect(idField.type, 'idField.type').to.exist;
+      expect(idField.type).to.equal('string');
+
+      const vField = results.find(x => x.field === '__v');
+      expect(vField.type, 'vField.type').to.exist;
+      expect(vField.type).to.equal('number');
+
+      const result = documentModel({
+        schema,
+      }, {
+        omitMongooseInternals: false,
+      });
+      const props = result.properties;
+      expect(props.name).to.exist;
+      expect(props.id).to.exist;
+      expect(props._id).to.exist;
+      expect(props.__v).to.exist;
+
+      const propsPartialOmit = documentModel({
+        schema,
+      }, {
+        omitFields: ['__v'],
+        omitMongooseInternals: false,
+      }).properties;
+      expect(propsPartialOmit.name).to.exist;
+      expect(propsPartialOmit.id).to.exist;
+      expect(propsPartialOmit._id).to.exist;
+      expect(propsPartialOmit.__v).to.not.exist;
+
+      const propsFullOmit = documentModel({
+        schema,
+      }, {
+        omitMongooseInternals: true, // default, but be explicit for the test
+      }).properties;
+      expect(propsFullOmit.name).to.exist;
+      expect(propsFullOmit.id).to.not.exist;
+      expect(propsFullOmit._id).to.exist;
+      expect(propsFullOmit.__v).to.not.exist;
+    });
+
     it('other various types', () => {
       const schema = new Schema({
         name: String,
