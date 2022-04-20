@@ -177,7 +177,7 @@ const mapSchemaTypeToFieldSchema = ({
 
 const getFieldsFromMongooseSchema = (schema: {
   tree: Record<string, any>;
-}, options: { props: string[], omitFields: string[], omitMongooseInternals?: boolean }): any[] => {
+}, options: { props: string[], omitFields: string[], omitMongooseInternals?: boolean; }): any[] => {
   const { props, omitFields, omitMongooseInternals = true } = options;
   const omitted = new Set([...(omitMongooseInternals ? ['__v', 'id'] : []), ...omitFields || []]);
   const tree = schema.tree;
@@ -227,10 +227,11 @@ const getFieldsFromMongooseSchema = (schema: {
  * Entry Point
  * @param Model Mongoose Model Instance
  */
-function documentModel(Model, options: { props?: string[], omitFields?: string[] } = {}): any {
+function documentModel(Model, options: { props?: string[], omitFields?: string[], omitMongooseInternals?: boolean; } = {}): any {
   let {
     props = [],
     omitFields = [],
+    omitMongooseInternals = true,
   } = options;
   props = [...defaultSupportedMetaProps, ...props];
 
@@ -251,7 +252,7 @@ function documentModel(Model, options: { props?: string[], omitFields?: string[]
   const schema = Model.schema;
 
   // get an array of deeply hydrated fields
-  const fields = getFieldsFromMongooseSchema(schema, { props, omitFields });
+  const fields = getFieldsFromMongooseSchema(schema, { props, omitFields, omitMongooseInternals });
 
   // root is always an object
   const obj = {
