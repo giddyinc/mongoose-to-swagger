@@ -126,7 +126,7 @@ const mapSchemaTypeToFieldSchema = ({
     const metaValue = value[metaProp];
     const isValidEnum = metaValue === 'enum' ? Array.isArray(metaValue) : true;
     const isValidRequired = metaValue === 'required' ? Array.isArray(metaValue) || typeof metaValue === 'boolean' : true;
-    const isValidDescription = metaValue === 'enum' ? typeof metaValue === 'string' : true;
+    const isValidDescription = metaValue === 'description' ? typeof metaValue === 'string' : true;
     const defaultSupportedMetaPropsAreValid = isValidDescription && isValidEnum && isValidRequired;
     if (value && metaValue != null && defaultSupportedMetaPropsAreValid) {
       meta[metaProp] = metaValue;
