@@ -215,6 +215,9 @@ const getFieldsFromMongooseSchema = (schema: {
           delete val.required;
         }
       }
+      if (!field.items.required.length) {
+        delete field.items.required;
+      }
     }
 
     fields.push(field);
