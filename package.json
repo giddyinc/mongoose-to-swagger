@@ -1,6 +1,6 @@
 {
   "name": "mongoose-to-swagger",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Conversion library for transforming Mongoose schema objects into Swagger schema definitions.",
   "homepage": "",
   "author": {
@@ -44,7 +44,8 @@
     "test:watch": "mocha lib/*.test.js --watch",
     "test": "mocha lib/*.test.ts",
     "build": "tsc",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "preinstall": "npm run build"
   },
   "dependencies": {},
   "license": "MIT",
