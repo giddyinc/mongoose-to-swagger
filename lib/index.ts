@@ -131,7 +131,7 @@ const mapSchemaTypeToFieldSchema = ({
   if (value === Date || value.type === Date) {
     meta.format = 'date-time';
   } else if (swaggerType === 'array') {
-    const arraySchema = Array.isArray(value) ? value[0] : value.type[0];
+    const arraySchema = Array.isArray(value) ? value[0] : value.$isMongooseArray ? value.$embeddedSchemaType.instance : value.type[0];
     const items = mapSchemaTypeToFieldSchema({ value: arraySchema || {}, props, omitFields });
     meta.items = items;
   } else if (swaggerType === 'object') {
